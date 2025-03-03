@@ -1,0 +1,21 @@
+{
+  "name": "dairin-kaeru/dairin-php-client",
+  "description": "DairinのAPIを呼び出すためのPHPクライアントライブラリ",
+  "type": "library",
+  "require": {
+    "php": ">=7.4",
+    "guzzlehttp/guzzle": "^7.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "DairinClient\\": "src/"
+    }
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "dairin",
+      "email": "dairin_info@dair.in"
+    }
+  ]
+}
