@@ -3,7 +3,7 @@
   "description": "DairinのAPIを呼び出すためのPHPクライアントライブラリ",
   "type": "library",
   "require": {
-    "php": ">=7.4",
+    "php": ">=8.1",
     "guzzlehttp/guzzle": "^7.2"
   },
   "autoload": {
