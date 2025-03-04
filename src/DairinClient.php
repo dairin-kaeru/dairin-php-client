@@ -39,6 +39,27 @@ class DairinClient
     }
 
     /**
+     * 既存の customer_uid をもつ Customer に最終コンバージョンを発生させる。
+     * @param string $project_code プロジェクトを識別する文字列
+     * @param string $customer_uid プロジェクト内で顧客を識別する文字列
+     * @param string|null $event_id 最終コンバージョンの追補情報（メモ）として指定できる任意の文字列
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws GuzzleException
+     */
+    public function complete(string $project_code, string $customer_uid, ?string $event_id = null)
+    {
+        assert(mb_strlen($project_code) <= 255);
+        assert(mb_strlen($customer_uid) <= 255);
+        assert($event_id === null || strlen($event_id) <= 1024*10-1); //実際には最大長 65,535 バイト
+
+        return $this->postJson('/api/v1/complete', [
+            'project_code' => $project_code,
+            'customer_uid' => $customer_uid,
+            'event_id' => $event_id,
+        ]);
+    }
+
+    /**
      * POSTリクエストをJSON形式で送信する
      *
      * @param string $path APIのパス（例: /api/v1/resource）
