@@ -14,6 +14,9 @@ Composerを利用してインストールします。
 composer require dairin-kaeru/dairin-php-client
 ```
 
+#### Packagist のリンク
+https://packagist.org/packages/dairin-kaeru/dairin-php-client
+
 ## 使用例
 
 ```php

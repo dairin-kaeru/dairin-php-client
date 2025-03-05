@@ -50,7 +50,7 @@ class DairinClient
     {
         assert(mb_strlen($project_code) <= 255);
         assert(mb_strlen($customer_uid) <= 255);
-        assert($event_id === null || strlen($event_id) <= 1024*10-1); //実際には最大長 65,535 バイト
+        assert($event_id === null || strlen($event_id) <= 1024 * 10 - 1); //実際には最大長 65,535 バイト
 
         return $this->postJson('/api/v1/complete', [
             'project_code' => $project_code,
