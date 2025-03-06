@@ -4,6 +4,9 @@ namespace DairinClient;
 
 class DairinHMAC
 {
+    /**
+     * @param string $secretKey プロジェクトのシークレットキー（HMAC署名の鍵）
+     */
     public function __construct(private readonly string $secretKey)
     {
     }
