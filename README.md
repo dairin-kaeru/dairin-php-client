@@ -27,7 +27,7 @@ $key = getenv('DAIRIN_PROJECT_API_KEY');
 $secret = getenv('DAIRIN_PROJECT_API_SECRET');
 $client = new DairinClient($key, $secret);
 
-// 疎通確認
+// HMAC 認証の疎通確認
 $pingResp = $client->ping();
 echo json_encode(json_decode($pingResp->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
 echo PHP_EOL;
@@ -37,21 +37,31 @@ $campaign_code = '<<キャンペーンコード>>';
 $customer_uid = date('Y/m/d_H:i:s.v');
 
 // 新規の顧客に中間CVを発生させる
-$signupResp = $client->signup(
-    partner_code: $partner_code,
-    campaign_code: $campaign_code,
-    customer_uid: $customer_uid,
-);
-echo json_encode(json_decode($signupResp->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
-echo PHP_EOL;
+try {
+    $signupResp = $client->signup(
+        partner_code: $partner_code,
+        campaign_code: $campaign_code,
+        customer_uid: $customer_uid,
+    );
+    echo json_encode(json_decode($signupResp->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    echo PHP_EOL;
+} catch (\GuzzleHttp\Exception\BadResponseException $e) {
+    echo json_encode(json_decode($e->getResponse()->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    echo PHP_EOL;
+}
 
 // 既存の顧客（中間CVユーザー）に最終CVを発生させる
-$completeResp = $client->complete(
-    customer_uid: $customer_uid,
-    event_id: 'dairin-php-client から発火しました',
-    campaign_code: $campaign_code,
-    sales_amount: 1000,
-);
-echo json_encode(json_decode($completeResp->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
-echo PHP_EOL;
+try {
+    $completeResp = $client->complete(
+        customer_uid: $customer_uid,
+        campaign_code: $campaign_code,
+        event_id: 'dairin-php-client から発火しました',
+        sales_amount: 1000,
+    );
+    echo json_encode(json_decode($completeResp->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    echo PHP_EOL;
+} catch (\GuzzleHttp\Exception\BadResponseException $e) {
+    echo json_encode(json_decode($e->getResponse()->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    echo PHP_EOL;
+}
 ```
