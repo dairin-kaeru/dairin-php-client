@@ -52,9 +52,15 @@ class DairinClient
         string $customer_uid,
     )
     {
-        assert($partner_code && mb_strlen($partner_code) <= 255);
-        assert($campaign_code && mb_strlen($campaign_code) <= 255);
-        assert($customer_uid && mb_strlen($customer_uid) <= 255);
+        if (empty($partner_code) || mb_strlen($partner_code) > 255) {
+            throw new \InvalidArgumentException('partner_codeが不正です。');
+        }
+        if (empty($campaign_code) || mb_strlen($campaign_code) > 255) {
+            throw new \InvalidArgumentException('campaign_codeが不正です。');
+        }
+        if (empty($customer_uid) || mb_strlen($customer_uid) > 255) {
+            throw new \InvalidArgumentException('customer_uidが不正です。');
+        }
 
         return $this->postJson('/api/v1/signup', [
             'partner_code' => $partner_code,
@@ -79,10 +85,18 @@ class DairinClient
         ?int    $sales_amount = null
     )
     {
-        assert($customer_uid && mb_strlen($customer_uid) <= 255);
-        assert($campaign_code && mb_strlen($campaign_code) <= 255);
-        assert($event_id === null || strlen($event_id) <= 1024 * 10 - 1); //実際には最大長 65,535 バイト
-        assert($sales_amount === null || $sales_amount >= 0);
+        if (empty($customer_uid) || mb_strlen($customer_uid) > 255) {
+            throw new \InvalidArgumentException('customer_uidが不正です。');
+        }
+        if (empty($campaign_code) || mb_strlen($campaign_code) > 255) {
+            throw new \InvalidArgumentException('campaign_codeが不正です。');
+        }
+        if (!is_null($event_id) && strlen($event_id) > 1024 * 10 - 1) { //実際には最大長 65,535 バイト
+            throw new \InvalidArgumentException('event_idが不正です。');
+        }
+        if (!is_null($sales_amount) && $sales_amount < 0) {
+            throw new \InvalidArgumentException('sales_amountが不正です。');
+        }
 
         return $this->postJson('/api/v1/complete', [
             'customer_uid' => $customer_uid,
@@ -98,19 +112,18 @@ class DairinClient
      * @param string $path APIのパス（例: /api/v1/resource）
      * @param array $data リクエストボディとして送信する連想配列（自動的にJSONエンコードされます）
      * @param array $queryParams クエリパラメータ（任意）
-     *
      * @return \Psr\Http\Message\ResponseInterface
-     *
      * @throws GuzzleException
+     * @throws \JsonException
      */
     protected function postJson(string $path, array $data, array $queryParams = [])
     {
         $url = $this->baseUrl . $path;
         $httpMethod = 'POST';
-        $body = json_encode($data);
+        $body = json_encode($data, JSON_THROW_ON_ERROR);
 
         $timestamp = (string)time();
-        $nonce = bin2hex(random_bytes(8)); // 16文字のランダムな文字列
+        $nonce = bin2hex(random_bytes(16)); // 32文字のランダムな文字列
 
         // 署名の生成
         $signature = $this->hmac->generateSignature($httpMethod, $path, $queryParams, $body, $timestamp, $nonce);
