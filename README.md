@@ -22,15 +22,23 @@ https://packagist.org/packages/dairin-kaeru/dairin-php-client
 ```php
 require 'vendor/autoload.php';
 use DairinClient\DairinClient;
+use GuzzleHttp\Exception\BadResponseException;
 
 $key = getenv('DAIRIN_PROJECT_API_KEY');
 $secret = getenv('DAIRIN_PROJECT_API_SECRET');
 $client = new DairinClient($key, $secret);
+$jsonEncodeFlags = JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES;
 
-// HMAC 認証の疎通確認
-$pingResp = $client->ping();
-echo json_encode(json_decode($pingResp->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
-echo PHP_EOL;
+// 疎通確認
+try {
+    $pingResp = $client->ping();
+    echo json_encode(json_decode($pingResp->getBody()), $jsonEncodeFlags);
+    echo PHP_EOL;
+} catch (BadResponseException $e) {
+    echo json_encode(json_decode($e->getResponse()->getBody()), $jsonEncodeFlags);
+    echo PHP_EOL;
+    exit(1);
+}
 
 $partner_code = '<<提携コード>>';
 $campaign_code = '<<キャンペーンコード>>';
@@ -43,11 +51,12 @@ try {
         campaign_code: $campaign_code,
         customer_uid: $customer_uid,
     );
-    echo json_encode(json_decode($signupResp->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    echo json_encode(json_decode($signupResp->getBody()), $jsonEncodeFlags);
     echo PHP_EOL;
-} catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    echo json_encode(json_decode($e->getResponse()->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+} catch (BadResponseException $e) {
+    echo json_encode(json_decode($e->getResponse()->getBody()), $jsonEncodeFlags);
     echo PHP_EOL;
+    exit(2);
 }
 
 // 既存の顧客（中間CVユーザー）に最終CVを発生させる
@@ -56,12 +65,13 @@ try {
         customer_uid: $customer_uid,
         campaign_code: $campaign_code,
         event_id: 'dairin-php-client から発火しました',
-        sales_amount: 1000,
+        //sales_amount: 1000,
     );
-    echo json_encode(json_decode($completeResp->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    echo json_encode(json_decode($completeResp->getBody()), $jsonEncodeFlags);
     echo PHP_EOL;
-} catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    echo json_encode(json_decode($e->getResponse()->getBody(), true), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+} catch (BadResponseException $e) {
+    echo json_encode(json_decode($e->getResponse()->getBody()), $jsonEncodeFlags);
     echo PHP_EOL;
+    exit(3);
 }
 ```
