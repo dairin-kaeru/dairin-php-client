@@ -20,7 +20,7 @@ class DairinClient
      * @param string $baseUrl APIのベースURL（例: https://dair.in）
      * @param array $httpClientOptions GuzzleHttp\Client用のオプション（任意）
      */
-    public function __construct(string $apiKey, string $secretKey, string $baseUrl = 'https://dair.in', array $httpClientOptions = [])
+    public function __construct(string $apiKey, string $secretKey, string $baseUrl = 'https://app.dair.in', array $httpClientOptions = [])
     {
         $this->apiKey = $apiKey;
         $this->hmac = new DairinHMAC($secretKey);
